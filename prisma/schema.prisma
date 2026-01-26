@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -54,9 +54,9 @@ model Category {
 model Meal {
   id          String          @id @default(uuid())
   name        String
-  price       Float
-  description String
-  image       String
+  price       Int
+  description String?
+  image       String?
   providerId  String
   categoryId  String
   provider    ProviderProfile @relation(fields: [providerId], references: [id])
@@ -69,7 +69,7 @@ model Order {
   id        String      @id @default(uuid())
   userId    String
   status    OrderStatus @default(PLACED)
-  total     Float
+  total     Int
   address   String
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
@@ -81,7 +81,7 @@ model OrderItem {
   orderId String
   mealId  String
   qty     Int
-  price   Float
+  price   String
   order   Order  @relation(fields: [orderId], references: [id])
   meal    Meal   @relation(fields: [mealId], references: [id])
 }

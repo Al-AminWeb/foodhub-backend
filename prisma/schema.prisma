@@ -1,8 +1,97 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PROVIDER
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id              String           @id @default(uuid())
+  name            String
+  email           String           @unique
+  password        String
+  role            Role             @default(CUSTOMER)
+  isActive        Boolean          @default(true)
+  providerProfile ProviderProfile?
+  orders          Order[]
+  reviews         Review[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model ProviderProfile {
+  id         String  @id @default(uuid())
+  userId     String  @unique
+  restaurant String
+  address    String?
+  phone      String?
+  user       User    @relation(fields: [userId], references: [id])
+  meals      Meal[]
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  meals Meal[]
+}
+
+model Meal {
+  id          String          @id @default(uuid())
+  name        String
+  price       Float
+  description String
+  image       String
+  providerId  String
+  categoryId  String
+  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  category    Category        @relation(fields: [categoryId], references: [id])
+  reviews     Review[]
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String
+  status    OrderStatus @default(PLACED)
+  total     Float
+  address   String
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  mealId  String
+  qty     Int
+  price   Float
+  order   Order  @relation(fields: [orderId], references: [id])
+  meal    Meal   @relation(fields: [mealId], references: [id])
+}
+
+model Review {
+  id      String @id @default(uuid())
+  rating  Int
+  comment String
+  userId  String
+  mealId  String
+  user    User   @relation(fields: [userId], references: [id])
+  meal    Meal   @relation(fields: [mealId], references: [id])
 }

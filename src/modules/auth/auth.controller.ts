@@ -1,9 +1,28 @@
 import {Request, Response} from 'express';
 import {authService} from "./auth.service";
+import {date} from "better-auth";
 
 const login = async (req: Request, res: Response) => {
-    res.send('Login endpoint working');
-}
+    try {
+        const {email, password} = req.body;
+
+        const result = await authService.login(email, password);
+
+        console.log(result)
+
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            data: result,
+        });
+
+    } catch (error: any) {
+        res.status(401).json({
+            success: false,
+            message: error.message || "Login failed",
+        });
+    }
+};
 
 const register = async (req: Request, res: Response) => {
     try {
@@ -22,7 +41,7 @@ const register = async (req: Request, res: Response) => {
     }
 };
 
-export const authController ={
+export const authController = {
     login,
     register
 }

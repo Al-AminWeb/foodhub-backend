@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import {authService} from "./auth.service";
-import {date} from "better-auth";
+import { AuthRequest } from "./auth.middleware";
 
 const login = async (req: Request, res: Response) => {
     try {
@@ -41,7 +41,27 @@ const register = async (req: Request, res: Response) => {
     }
 };
 
+const me = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user.userId;
+
+        const user = await authService.me(userId);
+
+        res.status(200).json({
+            success: true,
+            data: user,
+        });
+    } catch (error: any) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
 export const authController = {
     login,
-    register
+    register,
+    me
 }

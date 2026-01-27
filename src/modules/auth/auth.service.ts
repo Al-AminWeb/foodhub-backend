@@ -122,8 +122,29 @@ const login = async (email: string, password: string) => {
     }
 };
 
+const me = async (userId: string) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                providerProfile: true,
+            },
+        });
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const { password, ...safeUser } = user;
+        return safeUser;
+    } catch (error: any) {
+        throw new Error(error.message || "Failed to fetch user");
+    }
+};
+
 
 export const authService = {
     Register,
-    login
+    login,
+    me
 }

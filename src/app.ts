@@ -1,16 +1,13 @@
-import express, {Application} from "express"
-import {toNodeHandler} from "better-auth/node";
-import {auth} from "./lib/auth";
+import express from "express";
+import { authRouter } from "./modules/auth/auth.routes";
 
-
-const app: Application = express()
-app.all('/api/auth/{*any}', toNodeHandler(auth));
+const app = express();
 
 app.use(express.json());
+app.use("/api/auth", authRouter);
 
-
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
     res.send("Hello, This is the Express app! of FoodHub");
-})
+});
 
 export default app;

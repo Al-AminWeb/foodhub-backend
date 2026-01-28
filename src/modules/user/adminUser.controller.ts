@@ -60,7 +60,7 @@ const updateUserStatus = async (req: Request, res: Response) => {
             });
         }
 
-        console.log(req.body, typeof req.body.isActive);
+
 
         const updateUser = await adminUserService.updateUserStatus(id, isActive);
         res.status(200).json({

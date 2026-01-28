@@ -1,5 +1,6 @@
 import {Role} from "../../../generated/prisma/enums";
 import {adminUserService} from "./adminUser.service";
+import {Request, Response} from "express";
 
 
 const getAllUsers = async (req: Request, res: Response) => {
@@ -45,6 +46,37 @@ const getAllUsers = async (req: Request, res: Response) => {
         });
     }
 }
+
+
+const updateUserStatus = async (req: Request, res: Response) => {
+    try {
+        const {id} = req.params;
+        const {isActive} = req.body;
+
+        if (typeof isActive !== "boolean") {
+            return res.status(400).json({
+                success: false,
+                message: "isActive must be boolean",
+            });
+        }
+
+        console.log(req.body, typeof req.body.isActive);
+
+        const updateUser = await adminUserService.updateUserStatus(id, isActive);
+        res.status(200).json({
+            success: true,
+            message: "User status updated successfully",
+            data: updateUser,
+        });
+    } catch (error) {
+        res.status(404).json({
+            success: false,
+            message: error.message || "Failed to update user status",
+        })
+    }
+}
+
 export const adminUserController = {
     getAllUsers,
+    updateUserStatus,
 };

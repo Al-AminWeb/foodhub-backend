@@ -79,6 +79,37 @@ const getAllUsers = async ({
     }
 }
 
+
+
+const updateUserStatus = async (UserId: string, isActive: boolean) => {
+    try{
+        const user = await prisma.user.findUnique({
+            where: {id: UserId},
+        });
+        if (!user) {
+            throw new Error("User not found");
+        }
+        const updatedUser = await prisma.user.update({
+            where: {id: UserId},
+            data: {isActive},
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                isActive: true,
+                updatedAt: true,
+            },
+        });
+        return updatedUser;
+        }
+    catch(error) {
+        throw error;
+    }
+}
+
+
 export const adminUserService = {
     getAllUsers,
+    updateUserStatus,
 };

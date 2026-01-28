@@ -78,11 +78,63 @@ const updateMeal = async (req: AuthRequest, res: Response) => {
     }
 }
 
+const deleteMeal = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user.userId;
+        const {id} = req.params;
+        console.log("🗑️ Deleting meal:", id, "for user:", userId);
 
+        await providerService.deleteMeal(userId, id);
+
+        res.status(200).json({
+            success: true,
+            message: "Meal deleted successfully",
+        });
+    }
+    catch (error:any) {
+        console.error("❌ Controller Error (deleteMeal):", error);
+
+        // Check specific error types
+        if (error.message.includes("not found")) {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+                error: process.env.NODE_ENV === "development" ? {
+                    name: error?.name,
+                    message: error?.message,
+                } : undefined,
+            });
+        }
+
+        if (error.message.includes("not authorized")) {
+            return res.status(403).json({
+                success: false,
+                message: error.message,
+                error: process.env.NODE_ENV === "development" ? {
+                    name: error?.name,
+                    message: error?.message,
+                } : undefined,
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: error?.message || "Failed to delete meal",
+            error: process.env.NODE_ENV === "development" ? {
+                name: error?.name,
+                message: error?.message,
+                stack: error?.stack,
+            } : undefined,
+        });
+
+    }
+
+}
 
 
 
 export const providerController = {
     addMeal,
-    updateMeal
+    updateMeal,
+    deleteMeal,
 };

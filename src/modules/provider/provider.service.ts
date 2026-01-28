@@ -74,7 +74,41 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
 };
 
 
+const deleteMeal = async (userId: string, mealId: string) => {
+    try{
+        const provider = await prisma.providerProfile.findUnique({
+            where: { userId },
+        })
+        if (!provider) {
+            console.error("❌ Provider not found for userId:", userId);
+            throw new Error("Provider profile not found");
+        }
+        const meal = await prisma.meal.findUnique({
+            where: { id: mealId }
+        })
+        if (!meal) {
+            console.error("❌ Meal not found with id:", mealId);
+            throw new Error("Meal not found");
+        }
+        if (meal.providerId !== provider.id) {
+            console.error("❌ Unauthorized: Meal belongs to different provider");
+            throw new Error("You are not authorized to delete this meal");
+        }
+        await prisma.meal.delete({
+            where: { id: mealId }
+        })
+        console.log("✅ Meal deleted successfully:", mealId);
+        return { deleted: true, mealId };
+    }
+    catch (error:any){
+        console.error("❌ Error in deleteMeal service:", error.message);
+        console.error("Full error:", error);
+        throw error;
+    }
+}
+
 export const providerService = {
     addMeal,
     updateMeal,
+    deleteMeal,
 }

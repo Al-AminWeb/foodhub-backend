@@ -1,8 +1,9 @@
 import express from "express";
 import {providerController} from "./provider.controller";
+import {authMiddleware} from "../../middleware/auth.middleware";
 
 const router = express.Router();
 
-router.post("/meals", providerController.addMeal);
+router.post("/meals", authMiddleware,providerController.addMeal);
 
-export const providerRoutes = router;
+export const providerRouter = router;

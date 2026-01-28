@@ -21,9 +21,11 @@ const addMeal = async (userId: string, payload:any) => {
             }
         })
     }
-    catch (error) {
-        throw new Error("Failed to add meal");
+    catch (error: any) {
+        console.error("Prisma error while adding meal:", error); // log full error
+        throw error; // rethrow original error instead of masking it
     }
+
 }
 export const providerService = {
     addMeal,

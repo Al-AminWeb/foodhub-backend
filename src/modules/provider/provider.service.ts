@@ -2,6 +2,15 @@ import {prisma} from "../../lib/prisma";
 import {OrderStatus} from "../../../generated/prisma/enums";
 
 
+const validTransitions = {
+    [OrderStatus.PLACED]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
+    [OrderStatus.PREPARING]: [OrderStatus.READY, OrderStatus.CANCELLED],
+    [OrderStatus.READY]: [OrderStatus.DELIVERED],
+    [OrderStatus.DELIVERED]: [],
+    [OrderStatus.CANCELLED]: []
+};
+
+
 const addMeal = async (userId: string, payload: any) => {
     try {
 
@@ -27,7 +36,6 @@ const addMeal = async (userId: string, payload: any) => {
     }
 
 }
-
 
 const updateMeal = async (userId: string, mealId: string, payload: any) => {
     try {
@@ -72,7 +80,6 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
     }
 };
 
-
 const deleteMeal = async (userId: string, mealId: string) => {
     try {
         const provider = await prisma.providerProfile.findUnique({
@@ -104,12 +111,16 @@ const deleteMeal = async (userId: string, mealId: string) => {
     }
 }
 
-
 const updateOrderStatus = async (userId: string, orderId: string, status: OrderStatus) => {
     try {
         const provider = await prisma.providerProfile.findUnique({
             where: {userId},
         });
+
+        if (!validTransitions[order.status].includes(status)) {
+            throw new Error(`Invalid status transition from ${order.status} to ${status}`);
+        }
+
         if (!provider) {
             console.error("❌ Provider not found for userId:", userId);
             throw Error("Provider profile not found");

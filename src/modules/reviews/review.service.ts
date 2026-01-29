@@ -1,4 +1,8 @@
 import { prisma } from "../../lib/prisma";
+import {OrderStatus} from "../../../generated/prisma/enums";
+
+
+
 
 const createReview = async (
     userId: string,
@@ -30,6 +34,16 @@ const createReview = async (
         if (existingReview) {
             throw new Error("You have already reviewed this meal");
         }
+
+        const hasOrdered = await prisma.order.findFirst({
+            where: {
+                userId,
+                items: { some: { mealId } },
+                status: OrderStatus.DELIVERED
+            }
+        });
+        if (!hasOrdered) throw new Error("You can only review meals you have ordered and received");
+
 
         return await prisma.review.create({
             data: {

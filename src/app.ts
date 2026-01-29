@@ -14,7 +14,7 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminUserRouter);
 app.use("/api/provider", providerRouter);
-app.use("/api/admin", categoryRouter);
+app.use("/api/categories", categoryRouter);
 app.use("/api", mealRouter);
 app.use("/api/providers", providerPublicRouter);
 app.use("/api/orders", orderRouter)

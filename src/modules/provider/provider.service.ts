@@ -1,11 +1,12 @@
 import {prisma} from "../../lib/prisma";
+import {OrderStatus} from "../../../generated/prisma/enums";
 
 
-const addMeal = async (userId: string, payload:any) => {
+const addMeal = async (userId: string, payload: any) => {
     try {
 
         const provider = await prisma.providerProfile.findUnique({
-            where: { userId },
+            where: {userId},
         });
         if (!provider) {
             throw new Error("Provider profile not found");
@@ -20,8 +21,7 @@ const addMeal = async (userId: string, payload:any) => {
                 providerId: provider.id,
             }
         })
-    }
-    catch (error: any) {
+    } catch (error: any) {
         console.error("Prisma error while adding meal:", error); // log full error
         throw error; // rethrow original error instead of masking it
     }
@@ -33,7 +33,7 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
     try {
         // Step 1: Find provider
         const provider = await prisma.providerProfile.findUnique({
-            where: { userId },
+            where: {userId},
         });
 
         if (!provider) {
@@ -43,7 +43,7 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
 
         // Step 2: Find meal
         const meal = await prisma.meal.findUnique({
-            where: { id: mealId }
+            where: {id: mealId}
         });
 
         if (!meal) {
@@ -60,7 +60,7 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
 
         // Step 4: Update meal
         const updatedMeal = await prisma.meal.update({
-            where: { id: mealId },
+            where: {id: mealId},
             data: payload,
         });
 
@@ -75,16 +75,16 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
 
 
 const deleteMeal = async (userId: string, mealId: string) => {
-    try{
+    try {
         const provider = await prisma.providerProfile.findUnique({
-            where: { userId },
+            where: {userId},
         })
         if (!provider) {
             console.error("❌ Provider not found for userId:", userId);
             throw new Error("Provider profile not found");
         }
         const meal = await prisma.meal.findUnique({
-            where: { id: mealId }
+            where: {id: mealId}
         })
         if (!meal) {
             console.error("❌ Meal not found with id:", mealId);
@@ -95,20 +95,68 @@ const deleteMeal = async (userId: string, mealId: string) => {
             throw new Error("You are not authorized to delete this meal");
         }
         await prisma.meal.delete({
-            where: { id: mealId }
+            where: {id: mealId}
         })
         console.log("✅ Meal deleted successfully:", mealId);
-        return { deleted: true, mealId };
-    }
-    catch (error:any){
+        return {deleted: true, mealId};
+    } catch (error: any) {
         console.error("❌ Error in deleteMeal service:", error.message);
         console.error("Full error:", error);
         throw error;
     }
 }
 
+
+const updateOrderStatus = async (userId: string, orderId: string, status: OrderStatus) => {
+    try {
+        const provider = await prisma.providerProfile.findUnique({
+            where: {userId},
+        });
+        if (!provider) {
+            console.error("❌ Provider not found for userId:", userId);
+            throw Error("Provider profile not found");
+        }
+
+        const order = await prisma.order.findFirst({
+            where: {
+                id: orderId,
+                items: {
+                    some: {
+                        meal: {providerId: provider.id},
+                    },
+                },
+            },
+            include: {
+                items: {
+                    include: {
+                        meal: true,
+                    },
+                },
+            },
+        });
+
+        if (!order) {
+            console.error("❌ Order not found or unauthorized for orderId:", orderId);
+            throw new Error("Order not found or you are not authorized to update this order");
+        }
+
+        // Step 3: Update order status
+        const updatedOrder = await prisma.order.update({
+            where: {id: orderId},
+            data: {status},
+        });
+
+        console.log("✅ Order status updated successfully:", orderId, "New status:", status);
+        return updatedOrder;
+    } catch (error: any) {
+        console.error("❌ Error in updateOrderStatus service:", error.message);
+        console.error("Full error:", error);
+        throw error;
+    }
+}
 export const providerService = {
     addMeal,
     updateMeal,
     deleteMeal,
+    updateOrderStatus
 }

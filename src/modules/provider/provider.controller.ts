@@ -150,19 +150,19 @@ const updateOrderStatus = async (req: AuthRequest, res: Response) => {
                 success: false,
                 message: `Invalid order status. Valid statuses are: ${Object.values(OrderStatus).join(", ")}`,
             });
-
-            const order = await providerService.updateOrderStatus(
-                userId,
-                id,
-                status
-            );
-
-            return res.status(200).json({
-                success: true,
-                message: "Order status updated successfully",
-                data: order,
-            });
         }
+
+        const order = await providerService.updateOrderStatus(
+            userId,
+            id,
+            status
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Order status updated successfully",
+            data: order,
+        });
 
     } catch (error: any) {
         console.error("❌ Controller Error (updateOrderStatus):", error);

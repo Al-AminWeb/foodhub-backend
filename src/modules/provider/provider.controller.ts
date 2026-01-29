@@ -197,10 +197,37 @@ const updateOrderStatus = async (req: AuthRequest, res: Response) => {
     }
 }
 
+const getProviderOrders = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user.userId;
+        const orders = await providerService.getProviderOrders(userId);
+
+        res.status(200).json({
+            success: true,
+            data: orders,
+        });
+    } catch (error: any) {
+        console.error("❌ Controller Error (getProviderOrders):", error);
+
+        if (error.message.includes("not found")) {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: error?.message || "Failed to fetch orders",
+        });
+    }
+};
+
 
 export const providerController = {
     addMeal,
     updateMeal,
     deleteMeal,
-    updateOrderStatus
+    updateOrderStatus,
+    getProviderOrders,
 };

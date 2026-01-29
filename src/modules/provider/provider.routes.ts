@@ -10,5 +10,6 @@ router.post("/meals", authMiddleware, requireRole([Role.PROVIDER]), providerCont
 router.put("/meals/:id", authMiddleware, requireRole([Role.PROVIDER]), providerController.updateMeal);
 router.delete("/meals/:id", authMiddleware, requireRole([Role.PROVIDER]), providerController.deleteMeal);
 router.patch("/orders/:id", authMiddleware, requireRole([Role.PROVIDER]), providerController.updateOrderStatus);
+router.get("/orders", authMiddleware, requireRole([Role.PROVIDER]), providerController.getProviderOrders);
 
 export const providerRouter = router;

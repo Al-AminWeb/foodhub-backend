@@ -37,6 +37,7 @@ const Register = async (data: RegisterPayload) => {
             throw new Error("User already exists");
         }
         const hashedPassword = await bcrypt.hash(password, 12);
+
         const result = await prisma.$transaction(async (tx) => {
             const user = await tx.user.create({
                 data: {
@@ -47,9 +48,9 @@ const Register = async (data: RegisterPayload) => {
                 },
             });
 
-
             if (role === Role.PROVIDER) {
                 if (!restaurant) {
+                    // This error is caught by Prisma's transaction wrapper and re-thrown as a generic error
                     throw new Error("Restaurant name is required for provider");
                 }
 
@@ -66,10 +67,21 @@ const Register = async (data: RegisterPayload) => {
             return user;
         });
 
-    } catch (error) {
-        console.log(error)
+        // Return success result if transaction passes
+        return { success: true, user: result };
+
+    } catch (error: any) {
+        console.error("Registration Service Error:", error);
+
+        // FIX: Handle the Prisma transaction error wrapping
+        // Prisma wraps thrown errors. We need to unwrap the message or handle the generic error.
+        const errorMessage = error?.message || "Registration failed";
+
+        // If it's the specific Prisma error that wraps our manual throw,
+        // sometimes we need to check the cause, but usually passing the message is enough for the controller.
+        throw new Error(errorMessage);
     }
-}
+};
 
 const login = async (email: string, password: string) => {
     try {

@@ -6,7 +6,6 @@ import {OrderStatus} from "../../../generated/prisma/enums";
 const addMeal = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user.userId;
-        console.log("req.user:", req.user);
         const meal = await providerService.addMeal(userId, req.body);
 
         res.status(201).json({
@@ -15,8 +14,7 @@ const addMeal = async (req: AuthRequest, res: Response) => {
             data: meal,
         });
     } catch (error: any) {
-        // Log full error details to console
-        console.error("Error adding meal:", error);
+
 
         res.status(400).json({
             success: false,
@@ -30,8 +28,7 @@ const updateMeal = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user.userId;
         const {id} = req.params;
-        console.log("📝 Updating meal:", id, "for user:", userId);
-        console.log("📦 Update payload:", req.body);
+
 
         const meal = await providerService.updateMeal(userId, id, req.body);
         res.status(201).json({
@@ -82,7 +79,7 @@ const deleteMeal = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user.userId;
         const {id} = req.params;
-        console.log("🗑️ Deleting meal:", id, "for user:", userId);
+
 
         await providerService.deleteMeal(userId, id);
 
@@ -137,7 +134,6 @@ const updateOrderStatus = async (req: AuthRequest, res: Response) => {
         const {id} = req.params;
         const {status} = req.body;
 
-        console.log("📦 Updating order status:", id, "to:", status);
 
         if (!status) {
             return res.status(400).json({

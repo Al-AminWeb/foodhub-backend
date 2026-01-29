@@ -19,7 +19,7 @@ const createCategory = async (payload: any) => {
                 name: payload.name,
             }
         });
-        console.log("✅ Category created:", category.name);
+
         return category;
     } catch (error: any) {
         console.error("❌ Error in createCategory service:", error.message);
@@ -42,7 +42,7 @@ const updateCategory = async (categoryId: string, payload: any) => {
                         mode: 'insensitive',
                     },
                     id: {
-                        not: categoryId, // Exclude current category
+                        not: categoryId,
                     },
                 },
             });
@@ -57,7 +57,7 @@ const updateCategory = async (categoryId: string, payload: any) => {
             },
         });
 
-        console.log("✅ Category updated:", updatedCategory.name);
+
         return updatedCategory;
 
     } catch (error: any) {
@@ -69,7 +69,7 @@ const updateCategory = async (categoryId: string, payload: any) => {
 
 const deleteCategory = async (categoryId: string) => {
     try {
-        // Check if category exists
+
         const category = await prisma.category.findUnique({
             where: { id: categoryId },
             include: {
@@ -83,7 +83,7 @@ const deleteCategory = async (categoryId: string) => {
             throw new Error("Category not found");
         }
 
-        // Check if category has meals
+
         if (category._count.meals > 0) {
             throw new Error(
                 `Cannot delete category. It has ${category._count.meals} meal(s) associated with it. Please reassign or delete those meals first.`
@@ -94,7 +94,7 @@ const deleteCategory = async (categoryId: string) => {
             where: { id: categoryId },
         });
 
-        console.log("✅ Category deleted:", categoryId);
+
         return { deleted: true, categoryId };
     } catch (error: any) {
         console.error("❌ Error in deleteCategory service:", error.message);

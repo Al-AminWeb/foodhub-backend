@@ -30,7 +30,7 @@ async function seedAdmin() {
             },
         });
 
-        console.log("Admin created successfully:", admin.email);
+
     } catch (error) {
         console.log("Error seeding admin user:", error);
     } finally {

@@ -44,11 +44,9 @@ const createCategory = async (req: AuthRequest, res: Response) => {
 
 const updateCategory = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
-        console.log("📝 Updating category:", id);
-        console.log("📦 Update payload:", req.body);
+        const {id} = req.params;
 
-        // Validate name field
+
         if (!req.body.name || req.body.name.trim() === "") {
             return res.status(400).json({
                 success: false,
@@ -94,8 +92,8 @@ const updateCategory = async (req: AuthRequest, res: Response) => {
 
 const deleteCategory = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
-        console.log("🗑️ Deleting category:", id);
+        const {id} = req.params;
+
 
         await categoryService.deleteCategory(id);
 
@@ -131,7 +129,6 @@ const deleteCategory = async (req: AuthRequest, res: Response) => {
         });
     }
 };
-
 
 
 export const categoryController = {

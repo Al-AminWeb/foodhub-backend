@@ -31,7 +31,7 @@ const addMeal = async (userId: string, payload: any) => {
 
 const updateMeal = async (userId: string, mealId: string, payload: any) => {
     try {
-        // Step 1: Find provider
+
         const provider = await prisma.providerProfile.findUnique({
             where: {userId},
         });
@@ -41,7 +41,7 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
             throw new Error("Provider profile not found");
         }
 
-        // Step 2: Find meal
+
         const meal = await prisma.meal.findUnique({
             where: {id: mealId}
         });
@@ -51,20 +51,19 @@ const updateMeal = async (userId: string, mealId: string, payload: any) => {
             throw new Error("Meal not found");
         }
 
-        // Step 3: Check authorization
+
         if (meal.providerId !== provider.id) {
             console.error("❌ Unauthorized: Meal belongs to different provider");
             console.error("Meal providerId:", meal.providerId, "User providerId:", provider.id);
             throw new Error("You are not authorized to update this meal");
         }
 
-        // Step 4: Update meal
+
         const updatedMeal = await prisma.meal.update({
             where: {id: mealId},
             data: payload,
         });
 
-        console.log("✅ Meal updated successfully:", updatedMeal.id);
         return updatedMeal;
     } catch (error: any) {
         console.error("❌ Error in updateMeal service:", error.message);
@@ -97,7 +96,6 @@ const deleteMeal = async (userId: string, mealId: string) => {
         await prisma.meal.delete({
             where: {id: mealId}
         })
-        console.log("✅ Meal deleted successfully:", mealId);
         return {deleted: true, mealId};
     } catch (error: any) {
         console.error("❌ Error in deleteMeal service:", error.message);
@@ -146,7 +144,6 @@ const updateOrderStatus = async (userId: string, orderId: string, status: OrderS
             data: {status},
         });
 
-        console.log("✅ Order status updated successfully:", orderId, "New status:", status);
         return updatedOrder;
     } catch (error: any) {
         console.error("❌ Error in updateOrderStatus service:", error.message);

@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { providerService } from "./provider.service";
-import { AuthRequest } from "../../middleware/auth.middleware";
+import {Request, Response} from "express";
+import {providerService} from "./provider.service";
+import {AuthRequest} from "../../middleware/auth.middleware";
 import {OrderStatus} from "../../../generated/prisma/enums";
 
 const addMeal = async (req: AuthRequest, res: Response) => {
@@ -39,8 +39,7 @@ const updateMeal = async (req: AuthRequest, res: Response) => {
             message: "Meal updated successfully",
             data: meal,
         })
-    }
-    catch (error:any) {
+    } catch (error: any) {
         {
             console.error("❌ Controller Error (updateMeal):", error);
 
@@ -91,8 +90,7 @@ const deleteMeal = async (req: AuthRequest, res: Response) => {
             success: true,
             message: "Meal deleted successfully",
         });
-    }
-    catch (error:any) {
+    } catch (error: any) {
         console.error("❌ Controller Error (deleteMeal):", error);
 
         // Check specific error types
@@ -134,74 +132,73 @@ const deleteMeal = async (req: AuthRequest, res: Response) => {
 
 
 const updateOrderStatus = async (req: AuthRequest, res: Response) => {
-try{
-    const userId = req.user.userId;
-    const { id } = req.params;
-    const { status } = req.body;
+    try {
+        const userId = req.user.userId;
+        const {id} = req.params;
+        const {status} = req.body;
 
-    console.log("📦 Updating order status:", id, "to:", status);
+        console.log("📦 Updating order status:", id, "to:", status);
 
-    if (!status) {
+        if (!status) {
+            return res.status(400).json({
+                success: false,
+                message: "Status is required",
+            });
+        }
+        if (!Object.values(OrderStatus).includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid order status. Valid statuses are: ${Object.values(OrderStatus).join(", ")}`,
+            });
+
+            const order = await providerService.updateOrderStatus(
+                userId,
+                id,
+                status
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "Order status updated successfully",
+                data: order,
+            });
+        }
+
+    } catch (error: any) {
+        console.error("❌ Controller Error (updateOrderStatus):", error);
+
+        // Check specific error types
+        if (error.message.includes("not found")) {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+                error: process.env.NODE_ENV === "development" ? {
+                    name: error?.name,
+                    message: error?.message,
+                } : undefined,
+            });
+        }
+
+        if (error.message.includes("not authorized")) {
+            return res.status(403).json({
+                success: false,
+                message: error.message,
+                error: process.env.NODE_ENV === "development" ? {
+                    name: error?.name,
+                    message: error?.message,
+                } : undefined,
+            });
+        }
         return res.status(400).json({
             success: false,
-            message: "Status is required",
-        });
-    }
-    if (!Object.values(OrderStatus).includes(status)) {
-        return res.status(400).json({
-            success: false,
-            message: `Invalid order status. Valid statuses are: ${Object.values(OrderStatus).join(", ")}`,
-        });
-
-        const order = await providerService.updateOrderStatus(
-            userId,
-            id,
-            status
-        );
-
-        return res.status(200).json({
-            success: true,
-            message: "Order status updated successfully",
-            data: order,
-        });
-    }
-
-}
-catch (error:any) {
-    console.error("❌ Controller Error (updateOrderStatus):", error);
-
-    // Check specific error types
-    if (error.message.includes("not found")) {
-        return res.status(404).json({
-            success: false,
-            message: error.message,
+            message: error?.message || "Failed to update order status",
             error: process.env.NODE_ENV === "development" ? {
                 name: error?.name,
                 message: error?.message,
+                stack: error?.stack,
             } : undefined,
         });
     }
-
-    if (error.message.includes("not authorized")) {
-        return res.status(403).json({
-            success: false,
-            message: error.message,
-            error: process.env.NODE_ENV === "development" ? {
-                name: error?.name,
-                message: error?.message,
-            } : undefined,
-        });
-    }
-    return res.status(400).json({
-        success: false,
-        message: error?.message || "Failed to update order status",
-        error: process.env.NODE_ENV === "development" ? {
-            name: error?.name,
-            message: error?.message,
-            stack: error?.stack,
-        } : undefined,
-    });
-}
 }
 
 

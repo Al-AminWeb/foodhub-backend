@@ -6,6 +6,7 @@ import {categoryRouter} from "./modules/category/category.routes";
 import {mealRouter} from "./modules/meal/meal.routes";
 import {providerPublicRouter} from "./modules/providerPublic/providerPublic.routes";
 import {orderRouter} from "./modules/orders/orders.routes";
+import {reviewRouter} from "./modules/reviews/review.routes";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use("/api/admin", categoryRouter);
 app.use("/api", mealRouter);
 app.use("/api/providers", providerPublicRouter);
 app.use("/api/orders", orderRouter)
+app.use("/api/reviews",reviewRouter)
 
 app.get("/", (req, res) => {
     res.send("Hello, This is the Express app! of FoodHub");

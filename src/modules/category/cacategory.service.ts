@@ -102,8 +102,22 @@ const deleteCategory = async (categoryId: string) => {
     }
 };
 
+const getAllCategories = async () => {
+    try {
+        return await prisma.category.findMany({
+            orderBy: {
+                name: "asc",
+            },
+        });
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+        throw new Error("Failed to fetch categories");
+    }
+};
+
 export const categoryService = {
     createCategory,
     updateCategory,
     deleteCategory,
+    getAllCategories
 }

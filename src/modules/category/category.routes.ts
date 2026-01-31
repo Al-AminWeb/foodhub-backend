@@ -7,8 +7,10 @@ import {Role} from "../../../generated/prisma/enums";
 
 const router = express.Router();
 
-
+router.get('/all-category', categoryController.getAllCategories);
 router.post('/category', authMiddleware, requireRole([Role.ADMIN]), categoryController.createCategory);
 router.put("/category/:id", authMiddleware, requireRole([Role.ADMIN]), categoryController.updateCategory);
 router.delete("/category/:id", authMiddleware, requireRole([Role.ADMIN]), categoryController.deleteCategory);
+
+
 export const categoryRouter = router;

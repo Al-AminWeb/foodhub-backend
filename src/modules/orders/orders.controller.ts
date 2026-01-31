@@ -54,8 +54,18 @@ const getAllOrders = async (_req: AuthRequest, res: Response) => {
     }
 };
 
+
+const getOrderById = async (req: AuthRequest, res: Response) => {
+    try {
+        const order = await orderService.getOrderById(req.params.id, req.user.userId);
+        res.json({ success: true, data: order });
+    } catch (error: any) {
+        res.status(404).json({ success: false, message: error.message });
+    }
+};
 export const orderController = {
     createOrder,
     getMyOrders,
     getAllOrders,
+    getOrderById,
 };

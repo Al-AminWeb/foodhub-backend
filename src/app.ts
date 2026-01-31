@@ -7,8 +7,15 @@ import {mealRouter} from "./modules/meal/meal.routes";
 import {providerPublicRouter} from "./modules/providerPublic/providerPublic.routes";
 import {orderRouter} from "./modules/orders/orders.routes";
 import {reviewRouter} from "./modules/reviews/review.routes";
+import cors from "cors";
 
 const app = express();
+app.use(cors({
+    origin: "http://localhost:3000", // frontend origin
+    methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
+    credentials: true
+}));
+
 
 app.use(express.json());
 app.use("/api/auth", authRouter);

@@ -130,9 +130,21 @@ const deleteCategory = async (req: AuthRequest, res: Response) => {
     }
 };
 
+const getAllCategories = async (req: Request, res: Response) => {
+    try {
+        const categories = await categoryService.getAllCategories();
+        res.json({ success: true, data: categories });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Internal Server Error",
+        });
+    }
+};
 
 export const categoryController = {
     createCategory,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    getAllCategories
 }

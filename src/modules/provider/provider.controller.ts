@@ -2,27 +2,27 @@ import {Request, Response} from "express";
 import {providerService} from "./provider.service";
 import {AuthRequest} from "../../middleware/auth.middleware";
 import {OrderStatus} from "../../../generated/prisma/enums";
+import {prisma} from "../../lib/prisma";
 
-const addMeal = async (req: AuthRequest, res: Response) => {
+const addMeal = async (req: Request, res: Response) => {
     try {
-        const userId = req.user.userId;
+        const userId  = req.user.userId;
         const meal = await providerService.addMeal(userId, req.body);
-
         res.status(201).json({
             success: true,
             message: "Meal added successfully",
             data: meal,
         });
-    } catch (error: any) {
-
-
+    }
+    catch (error) {
         res.status(400).json({
             success: false,
-            message: error?.message || "Failed to add meal",
-            error: process.env.NODE_ENV === "development" ? error : undefined,
+            message: error.message,
         });
     }
-};
+}
+
+
 
 const updateMeal = async (req: AuthRequest, res: Response) => {
     try {
@@ -127,7 +127,6 @@ const deleteMeal = async (req: AuthRequest, res: Response) => {
 
 }
 
-
 const updateOrderStatus = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user.userId;
@@ -223,6 +222,23 @@ const getProviderOrders = async (req: AuthRequest, res: Response) => {
     }
 };
 
+const getMyMeals = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user.userId;
+        const meals = await providerService.getMyMeals(userId);
+
+        res.status(200).json({
+            success: true,
+            data: meals,
+        });
+    } catch (error: any) {
+        console.error("❌ Controller Error (getMyMeals):", error);
+        res.status(400).json({
+            success: false,
+            message: error?.message || "Failed to fetch meals",
+        });
+    }
+};
 
 export const providerController = {
     addMeal,
@@ -230,4 +246,5 @@ export const providerController = {
     deleteMeal,
     updateOrderStatus,
     getProviderOrders,
+    getMyMeals
 };

@@ -11,11 +11,11 @@ const validTransitions = {
 };
 
 
-const addMeal = async (userId: string, payload: any) => {
+const addMeal = async (userId: string, payload:any) => {
     try {
 
         const provider = await prisma.providerProfile.findUnique({
-            where: {userId},
+            where: { userId },
         });
         if (!provider) {
             throw new Error("Provider profile not found");
@@ -23,19 +23,19 @@ const addMeal = async (userId: string, payload: any) => {
         return await prisma.meal.create({
             data: {
                 name: payload.name,
-                price: payload.price,
+                price: Number(payload.price),
                 description: payload.description,
                 image: payload.image,
                 categoryId: payload.categoryId,
                 providerId: provider.id,
             }
         })
-    } catch (error: any) {
-        console.error("Prisma error while adding meal:", error); // log full error
-        throw error; // rethrow original error instead of masking it
     }
-
+    catch (error) {
+        throw new Error("Failed to add meal");
+    }
 }
+
 
 const updateMeal = async (userId: string, mealId: string, payload: any) => {
     try {
@@ -219,11 +219,37 @@ const getProviderOrders = async (userId: string) => {
     }
 };
 
+const getMyMeals = async (userId: string) => {
+    try {
+        const provider = await prisma.providerProfile.findUnique({
+            where: { userId },
+            include: {
+                meals: {
+                    include: {
+                        category: true, // Include category info
+                    },
+                    orderBy: {
+                        name: "asc",
+                    }
+                },
+            },
+        });
 
+        if (!provider) {
+            throw new Error("Provider profile not found");
+        }
+
+        return provider.meals;
+    } catch (error: any) {
+        console.error("❌ Error in getMyMeals service:", error.message);
+        throw error;
+    }
+};
 export const providerService = {
     addMeal,
     updateMeal,
     deleteMeal,
     updateOrderStatus,
-    getProviderOrders
+    getProviderOrders,
+    getMyMeals,
 }

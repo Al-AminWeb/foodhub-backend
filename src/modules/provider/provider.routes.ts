@@ -7,6 +7,7 @@ import {Role} from "../../../generated/prisma/enums";
 const router = express.Router();
 
 router.post("/meals", authMiddleware, requireRole([Role.PROVIDER]), providerController.addMeal);
+router.get("/meals", authMiddleware, requireRole([Role.PROVIDER]), providerController.getMyMeals);
 router.put("/meals/:id", authMiddleware, requireRole([Role.PROVIDER]), providerController.updateMeal);
 router.delete("/meals/:id", authMiddleware, requireRole([Role.PROVIDER]), providerController.deleteMeal);
 router.patch("/orders/:id", authMiddleware, requireRole([Role.PROVIDER]), providerController.updateOrderStatus);

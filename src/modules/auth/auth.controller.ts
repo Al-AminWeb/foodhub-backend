@@ -61,6 +61,8 @@ const me = async (req: AuthRequest, res: Response) => {
 
 
 const updateProfile = async (req: AuthRequest, res: Response) => {
+    console.log("🔍 DEBUG - req.body:", req.body);  // Add this line
+    console.log("🔍 DEBUG - req.headers:", req.headers['content-type']);
     try {
         const userId = req.user.userId;
         const { name, email } = req.body;

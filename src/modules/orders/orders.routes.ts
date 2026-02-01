@@ -10,5 +10,6 @@ router.post("/", authMiddleware, orderController.createOrder);
 router.get("/me", authMiddleware, orderController.getMyOrders);
 router.get("/all", authMiddleware, requireRole([Role.ADMIN]), orderController.getAllOrders);
 router.get("/:id", authMiddleware, orderController.getOrderById);
+router.patch("/:id/cancel", authMiddleware, orderController.cancelOrder);
 
 export const orderRouter = router;

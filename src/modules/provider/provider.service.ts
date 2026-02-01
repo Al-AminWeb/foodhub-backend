@@ -11,11 +11,11 @@ const validTransitions = {
 };
 
 
-const addMeal = async (userId: string, payload:any) => {
+const addMeal = async (userId: string, payload: any) => {
     try {
 
         const provider = await prisma.providerProfile.findUnique({
-            where: { userId },
+            where: {userId},
         });
         if (!provider) {
             throw new Error("Provider profile not found");
@@ -30,8 +30,7 @@ const addMeal = async (userId: string, payload:any) => {
                 providerId: provider.id,
             }
         })
-    }
-    catch (error) {
+    } catch (error) {
         throw new Error("Failed to add meal");
     }
 }
@@ -117,15 +116,12 @@ const updateOrderStatus = async (userId: string, orderId: string, status: OrderS
             where: {userId},
         });
 
-        if (!validTransitions[order.status].includes(status)) {
-            throw new Error(`Invalid status transition from ${order.status} to ${status}`);
-        }
-
         if (!provider) {
             console.error("❌ Provider not found for userId:", userId);
             throw Error("Provider profile not found");
         }
 
+        // Step 1: Fetch the order first
         const order = await prisma.order.findFirst({
             where: {
                 id: orderId,
@@ -149,6 +145,11 @@ const updateOrderStatus = async (userId: string, orderId: string, status: OrderS
             throw new Error("Order not found or you are not authorized to update this order");
         }
 
+        // Step 2: Validate status transition (MOVED AFTER fetching order)
+        if (!validTransitions[order.status].includes(status)) {
+            throw new Error(`Invalid status transition from ${order.status} to ${status}`);
+        }
+
         // Step 3: Update order status
         const updatedOrder = await prisma.order.update({
             where: {id: orderId},
@@ -166,7 +167,6 @@ const updateOrderStatus = async (userId: string, orderId: string, status: OrderS
 
 const getProviderOrders = async (userId: string) => {
     try {
-
         const provider = await prisma.providerProfile.findUnique({
             where: { userId },
         });
@@ -175,7 +175,7 @@ const getProviderOrders = async (userId: string) => {
             throw new Error("Provider profile not found");
         }
 
-
+        // Fetch orders that contain at least one item from this provider
         const orders = await prisma.order.findMany({
             where: {
                 items: {
@@ -202,6 +202,7 @@ const getProviderOrders = async (userId: string) => {
                                 name: true,
                                 price: true,
                                 image: true,
+                                providerId: true, // Added providerId to filter
                             },
                         },
                     },
@@ -212,7 +213,13 @@ const getProviderOrders = async (userId: string) => {
             },
         });
 
-        return orders;
+        // 🔥 FILTER: Only return items that belong to this provider
+        const filteredOrders = orders.map(order => ({
+            ...order,
+            items: order.items.filter(item => item.meal.providerId === provider.id)
+        }));
+
+        return filteredOrders;
     } catch (error: any) {
         console.error("❌ Error in getProviderOrders service:", error.message);
         throw error;
@@ -222,7 +229,7 @@ const getProviderOrders = async (userId: string) => {
 const getMyMeals = async (userId: string) => {
     try {
         const provider = await prisma.providerProfile.findUnique({
-            where: { userId },
+            where: {userId},
             include: {
                 meals: {
                     include: {
@@ -245,6 +252,7 @@ const getMyMeals = async (userId: string) => {
         throw error;
     }
 };
+
 export const providerService = {
     addMeal,
     updateMeal,

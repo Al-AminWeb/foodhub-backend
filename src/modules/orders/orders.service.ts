@@ -115,9 +115,45 @@ const getOrderById = async (orderId: string, userId: string) => {
     if (!order) throw new Error("Order not found");
     return order;
 };
+
+const cancelOrder = async (orderId: string, userId: string) => {
+    try {
+        const order = await prisma.order.findFirst({
+            where: {
+                id: orderId,
+                userId: userId
+            }
+        });
+
+        if (!order) {
+            throw new Error("Order not found");
+        }
+
+        if (order.status !== OrderStatus.PLACED) {
+            throw new Error(`Cannot cancel. Current status: ${order.status}`);
+        }
+
+        const cancelledOrder = await prisma.order.update({
+            where: { id: orderId },
+            data: { status: OrderStatus.CANCELLED },
+            include: {
+                items: {
+                    include: {
+                        meal: true,
+                    },
+                },
+            },
+        });
+
+        return cancelledOrder;
+    } catch (error: any) {
+        throw error;
+    }
+};
 export const orderService = {
     createOrder,
     getMyOrders,
     getAllOrders,
     getOrderById,
+    cancelOrder,
 };

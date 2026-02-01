@@ -155,8 +155,51 @@ const me = async (userId: string) => {
 };
 
 
+const updateProfile = async (userId: string, data: { name?: string; email?: string }) => {
+    try {
+
+        if (data.email) {
+            const existingUser = await prisma.user.findFirst({
+                where: {
+                    email: data.email,
+                    NOT: {
+                        id: userId
+                    }
+                }
+            });
+
+            if (existingUser) {
+                throw new Error("Email already in use");
+            }
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                ...(data.name && { name: data.name }),
+                ...(data.email && { email: data.email }),
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                isActive: true,
+                createdAt: true,
+                updatedAt: true,
+                providerProfile: true,
+            }
+        });
+
+        return updatedUser;
+    } catch (error: any) {
+        throw new Error(error.message || "Failed to update profile");
+    }
+};
+
 export const authService = {
     Register,
     login,
-    me
+    me,
+    updateProfile,
 }

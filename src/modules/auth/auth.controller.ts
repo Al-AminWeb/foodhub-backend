@@ -60,8 +60,49 @@ const me = async (req: AuthRequest, res: Response) => {
 };
 
 
+const updateProfile = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user.userId;
+        const { name, email } = req.body;
+
+        // Validate at least one field is provided
+        if (!name && !email) {
+            return res.status(400).json({
+                success: false,
+                message: "Name or email is required to update",
+            });
+        }
+
+        // Email validation
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid email format",
+                });
+            }
+        }
+
+        const user = await authService.updateProfile(userId, { name, email });
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            data: user,
+        });
+    } catch (error: any) {
+        console.error("Update profile error:", error);
+        res.status(400).json({
+            success: false,
+            message: error.message || "Failed to update profile",
+        });
+    }
+};
+
 export const authController = {
     login,
     register,
-    me
+    me,
+    updateProfile,
 }

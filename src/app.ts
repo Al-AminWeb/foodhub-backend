@@ -11,7 +11,7 @@ import cors from "cors";
 
 const app = express();
 app.use(cors({
-    origin: "http://localhost:3000", // frontend origin
+    origin: "https://foodhub-client-five.vercel.app", // frontend origin
     methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
     credentials: true
 }));
